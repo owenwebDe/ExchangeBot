@@ -15,6 +15,11 @@ app.set('trust proxy', 1);
 // Basic middleware
 app.use(express.json());
 
+// Serve Mini App at /app
+app.get('/app', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
+
 // Serve static files for Mini App
 app.use('/app', express.static(path.join(__dirname, '../public')));
 
