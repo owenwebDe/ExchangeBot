@@ -2,12 +2,7 @@
 const tg = window.Telegram?.WebApp;
 
 if (!tg) {
-    document.getElementById('loading').innerHTML = `
-        <div style="text-align: center; padding: 20px;">
-            <p style="color: red;">❌ Telegram WebApp not available</p>
-            <p style="font-size: 12px; color: #999;">Please open this page through Telegram</p>
-        </div>
-    `;
+    alert('❌ Telegram WebApp not available. Please open this page through Telegram.');
     throw new Error('Telegram WebApp not available');
 }
 
@@ -64,9 +59,7 @@ async function init() {
         // Load data
         await loadCampaigns();
 
-        // Show appropriate screen
-        document.getElementById('loading').classList.remove('active');
-
+        // Show appropriate screen (no loading screen to hide)
         if (isAdmin) {
             showAdminView();
         } else {
@@ -80,15 +73,7 @@ async function init() {
 
     } catch (error) {
         console.error('Initialization error:', error);
-        document.getElementById('loading').innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <p style="color: red;">❌ Failed to initialize</p>
-                <p style="font-size: 12px; color: #999;">${error.message}</p>
-                <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #2481cc; color: white; border: none; border-radius: 8px;">
-                    Retry
-                </button>
-            </div>
-        `;
+        tg.showAlert(`Failed to initialize: ${error.message}`);
     }
 }
 
