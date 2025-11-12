@@ -16,12 +16,21 @@ app.set('trust proxy', 1);
 app.use(express.json());
 
 // Serve Mini App at /app
+const publicPath = path.join(__dirname, '../public');
+logger.info(`Public path: ${publicPath}`);
+
 app.get('/app', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
+  const indexPath = path.join(publicPath, 'index.html');
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      logger.error(`Error serving index.html: ${err.message}`);
+      res.status(500).send('Error loading application');
+    }
+  });
 });
 
 // Serve static files for Mini App
-app.use('/app', express.static(path.join(__dirname, '../public')));
+app.use('/app', express.static(publicPath));
 
 // API routes
 app.use('/api', apiRouter);
