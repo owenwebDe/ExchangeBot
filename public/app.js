@@ -208,21 +208,14 @@ async function joinCampaignAndGetLink(campaignId) {
             })
         });
 
-        // Show success
+        // Close modal and open the affiliate link in browser
         closeModal('task-modal');
 
-        document.getElementById('task-modal-body').innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <div style="font-size: 48px; margin-bottom: 12px;">🎉</div>
-                <h3 style="margin-bottom: 8px;">Task Joined!</h3>
-                <p style="color: #666; margin-bottom: 16px;">Your referral link:</p>
-                <div class="referral-link-box">
-                    <input type="text" value="${link.shortUrl}" readonly id="task-link-result">
-                    <button class="btn-copy" onclick="copyTaskLink()">📋</button>
-                </div>
-            </div>
-        `;
-        openModal('task-modal');
+        // Open the link in external browser
+        tg.openLink(link.shortUrl);
+
+        // Show success notification
+        tg.showAlert('✅ Task joined! Opening exchange page...');
 
         // Reload tasks
         await loadUserTasks();
