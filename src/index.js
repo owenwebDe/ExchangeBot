@@ -21,15 +21,21 @@ async function init() {
     logger.info('Initializing database...');
     getDB();
 
-    // Start Express server
+    // Start Express server (critical)
     logger.info('Starting Express server...');
     await startServer();
 
-    // Start Telegram bot
+    // Start Telegram bot (non-critical - may fail in multi-instance deployments)
     logger.info('Starting Telegram bot...');
-    await startBot();
+    try {
+      await startBot();
+      logger.info('✅ Telegram bot started successfully!');
+    } catch (botError) {
+      logger.warn('⚠️  Telegram bot failed to start (this is OK if another instance is running):', botError.message);
+      logger.info('📱 Mini App and API endpoints are still available');
+    }
 
-    logger.info('✅ All services started successfully!');
+    logger.info('✅ Application started successfully!');
     logger.info('Press Ctrl+C to stop');
 
   } catch (error) {
