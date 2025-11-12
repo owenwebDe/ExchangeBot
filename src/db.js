@@ -1,8 +1,16 @@
 const Database = require('better-sqlite3');
 const path = require('path');
+const fs = require('fs');
 const logger = require('./utils/logger');
 
-const DB_PATH = path.join(__dirname, '..', 'app.db');
+// Use /app/data for Fly.io persistent volume, fallback to local path
+const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, '..');
+const DB_PATH = path.join(DATA_DIR, 'app.db');
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
 
 /**
  * Initialize SQLite database with schema
