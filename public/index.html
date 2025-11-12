@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Exchange Rewards</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Loading Screen -->
+        <div id="loading" class="screen active">
+            <div class="loader"></div>
+            <p>Loading...</p>
+        </div>
+
+        <!-- USER INTERFACE -->
+        <div id="user-screen" class="screen">
+            <!-- User Header -->
+            <div class="user-header">
+                <div class="user-avatar">
+                    <span id="user-initial">U</span>
+                </div>
+                <div class="user-info-header">
+                    <div class="user-name" id="user-display-name">User</div>
+                    <div class="user-username" id="user-display-username">@username</div>
+                </div>
+                <div class="user-points">
+                    <div class="points-value" id="user-points">0</div>
+                    <div class="points-label">Points</div>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-cards">
+                <div class="stat-card-small">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="referral-count">0</div>
+                        <div class="stat-text">Referrals</div>
+                    </div>
+                </div>
+                <div class="stat-card-small">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="tasks-completed">0</div>
+                        <div class="stat-text">Tasks Done</div>
+                    </div>
+                </div>
+                <div class="stat-card-small">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="user-rank">-</div>
+                        <div class="stat-text">Rank</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="tasks">Tasks</button>
+                <button class="tab" data-tab="referral">Referral</button>
+                <button class="tab" data-tab="leaderboard">Leaderboard</button>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tasks-tab" class="tab-content active">
+                <div class="section-title">Available Tasks</div>
+                <div id="tasks-list" class="tasks-list">
+                    <!-- Tasks will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Referral Tab -->
+            <div id="referral-tab" class="tab-content">
+                <div class="referral-card">
+                    <div class="referral-title">Your Referral Link</div>
+                    <div class="referral-description">Share this link and earn points for each friend who joins!</div>
+
+                    <div class="referral-link-box">
+                        <input type="text" id="referral-link" readonly>
+                        <button class="btn-copy" onclick="copyReferralLink()">📋</button>
+                    </div>
+
+                    <button class="btn btn-primary btn-block" onclick="shareReferralLink()">
+                        Share Link
+                    </button>
+                </div>
+
+                <div class="section-title">Your Referrals</div>
+                <div id="referrals-list">
+                    <!-- Referrals list will be loaded here -->
+                </div>
+
+                <div class="section-title">Your Referral Links</div>
+                <div id="user-links-list">
+                    <!-- User's campaign links will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Leaderboard Tab -->
+            <div id="leaderboard-tab" class="tab-content">
+                <div class="section-title">Top Users</div>
+                <div id="leaderboard-list" class="leaderboard-list">
+                    <!-- Leaderboard will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ADMIN INTERFACE -->
+        <div id="admin-screen" class="screen">
+            <div class="header">
+                <h1>Admin Panel</h1>
+                <button class="btn-icon" onclick="showUserView()">👤 User View</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="admin-campaigns">Campaigns</button>
+                <button class="tab" data-tab="admin-links">Links</button>
+                <button class="tab" data-tab="admin-stats">Statistics</button>
+            </div>
+
+            <!-- Admin Campaigns Tab -->
+            <div id="admin-campaigns-tab" class="tab-content active">
+                <div class="action-bar">
+                    <button id="new-campaign-btn" class="btn btn-primary">
+                        ➕ New Campaign
+                    </button>
+                </div>
+                <div id="admin-campaigns-list" class="list">
+                    <!-- Admin campaigns list -->
+                </div>
+            </div>
+
+            <!-- Admin Links Tab -->
+            <div id="admin-links-tab" class="tab-content">
+                <div class="action-bar">
+                    <select id="admin-campaign-select" class="select">
+                        <option value="">Select Campaign...</option>
+                    </select>
+                    <button id="admin-generate-link-btn" class="btn btn-primary" disabled>
+                        🔗 Generate Link
+                    </button>
+                </div>
+                <div id="admin-links-list" class="list">
+                    <!-- Admin links list -->
+                </div>
+            </div>
+
+            <!-- Admin Stats Tab -->
+            <div id="admin-stats-tab" class="tab-content">
+                <div class="stats-header">
+                    <select id="admin-stats-campaign-select" class="select">
+                        <option value="">Select Campaign...</option>
+                    </select>
+                </div>
+                <div id="admin-stats-content">
+                    <p class="placeholder">Select a campaign to view statistics</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Details Modal -->
+        <div id="task-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="task-modal-title">Task Details</h2>
+                    <button class="close-btn" onclick="closeModal('task-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div id="task-modal-body"></div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('task-modal')">Close</button>
+                    <button class="btn btn-primary" id="task-action-btn">Get Link</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Modals (New Campaign, Generate Link, etc.) -->
+        <div id="new-campaign-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>New Campaign</h2>
+                    <button class="close-btn" onclick="closeModal('new-campaign-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Campaign Name*</label>
+                        <input type="text" id="campaign-name" placeholder="e.g., Binance January Promo" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Exchange*</label>
+                        <input type="text" id="campaign-exchange" placeholder="e.g., Binance, OKX, Bybit" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Affiliate URL*</label>
+                        <input type="url" id="campaign-url" placeholder="https://..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Points per Referral</label>
+                        <input type="number" id="campaign-points" value="10" min="1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('new-campaign-modal')">Cancel</button>
+                    <button class="btn btn-primary" onclick="createCampaign()">Create Campaign</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="generate-link-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Generate Tracked Link</h2>
+                    <button class="close-btn" onclick="closeModal('generate-link-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Channel Username*</label>
+                        <input type="text" id="admin-link-channel" placeholder="@yourchannel" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('generate-link-modal')">Cancel</button>
+                    <button class="btn btn-primary" onclick="adminGenerateLink()">Generate Link</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

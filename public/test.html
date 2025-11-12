@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        button {
+            background: #2481cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Mini App Debug Test</h1>
+
+    <div class="info">
+        <h3>Environment Check</h3>
+        <p id="telegram-check">Checking Telegram WebApp...</p>
+        <p id="init-data">InitData: <span id="init-data-value">...</span></p>
+    </div>
+
+    <div class="info">
+        <h3>API Tests</h3>
+        <button onclick="testMe()">Test /api/me</button>
+        <button onclick="testCampaigns()">Test /api/campaigns</button>
+        <pre id="api-result" style="background: #fff; padding: 10px; border-radius: 4px; overflow-x: auto;"></pre>
+    </div>
+
+    <div class="info">
+        <h3>Direct Link</h3>
+        <p><a href="/app">Open Main App</a></p>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        const tg = window.Telegram?.WebApp;
+
+        // Check Telegram
+        if (tg) {
+            document.getElementById('telegram-check').innerHTML = '✅ Telegram WebApp loaded';
+            document.getElementById('telegram-check').className = 'success';
+            document.getElementById('init-data-value').textContent = tg.initData ? 'Available' : 'Empty';
+            tg.expand();
+            tg.ready();
+        } else {
+            document.getElementById('telegram-check').innerHTML = '❌ Telegram WebApp NOT loaded';
+            document.getElementById('telegram-check').className = 'error';
+        }
+
+        async function testMe() {
+            try {
+                const response = await fetch('/api/me', {
+                    headers: {
+                        'X-Telegram-Init-Data': tg?.initData || ''
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('api-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('api-result').textContent = 'Error: ' + error.message;
+            }
+        }
+
+        async function testCampaigns() {
+            try {
+                const response = await fetch('/api/campaigns', {
+                    headers: {
+                        'X-Telegram-Init-Data': tg?.initData || ''
+                    }
+                });
+                const data = await response.json();
+                document.getElementById('api-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('api-result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
