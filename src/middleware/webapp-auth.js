@@ -46,11 +46,12 @@ function validateTelegramWebAppData(initData, botToken) {
 
     const user = JSON.parse(userString);
 
-    // Check auth date (not older than 24 hours)
+    // Check auth date (not older than 7 days for better UX)
     const authDate = parseInt(urlParams.get('auth_date'));
     const now = Math.floor(Date.now() / 1000);
-    if (now - authDate > 86400) {
-      logger.warn('Telegram WebApp auth data expired');
+    const maxAge = 7 * 24 * 60 * 60; // 7 days in seconds
+    if (now - authDate > maxAge) {
+      logger.warn(`Telegram WebApp auth data expired (age: ${now - authDate}s, max: ${maxAge}s)`);
       return null;
     }
 
