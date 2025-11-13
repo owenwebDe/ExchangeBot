@@ -153,8 +153,8 @@ app.use((err, req, res, next) => {
  */
 function startServer() {
   return new Promise((resolve, reject) => {
-    const server = app.listen(PORT, () => {
-      logger.info(`Express server listening on port ${PORT}`);
+    const server = app.listen(PORT, '0.0.0.0', () => {
+      logger.info(`Express server listening on 0.0.0.0:${PORT}`);
       logger.info(`Health check: http://localhost:${PORT}/healthz`);
       resolve(server);
     });
