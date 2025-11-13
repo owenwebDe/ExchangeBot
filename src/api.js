@@ -95,7 +95,7 @@ router.get('/campaigns/:id', async (req, res) => {
  */
 router.post('/campaigns', webAppIsAdmin, async (req, res) => {
   try {
-    const { name, exchange, raw_url, utm_source, utm_medium, utm_campaign, points_per_referral } = req.body;
+    const { name, exchange, raw_url, utm_source, utm_medium, utm_campaign, points_per_referral, instructions } = req.body;
 
     if (!name || !exchange || !raw_url) {
       return res.status(400).json({ error: 'Missing required fields' });
@@ -108,7 +108,8 @@ router.post('/campaigns', webAppIsAdmin, async (req, res) => {
       utm_source: utm_source || 'telegram',
       utm_medium: utm_medium || 'webapp',
       utm_campaign,
-      points_per_referral: points_per_referral || 10
+      points_per_referral: points_per_referral || 10,
+      instructions: instructions || null
     });
 
     logger.info(`Campaign created via API by user ${req.telegramUser.id}: ${campaign.id}`);

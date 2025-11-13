@@ -50,9 +50,18 @@ function initDatabase() {
       utm_campaign TEXT NOT NULL,
       is_deleted INTEGER DEFAULT 0,
       points_per_referral INTEGER DEFAULT 10,
+      instructions TEXT,
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Add instructions column if it doesn't exist (for existing databases)
+  try {
+    db.exec(`ALTER TABLE campaigns ADD COLUMN instructions TEXT`);
+    logger.info('Added instructions column to campaigns table');
+  } catch (error) {
+    // Column already exists or other error - ignore
+  }
 
   // Create links table
   db.exec(`
@@ -249,8 +258,8 @@ const userParticipationQueries = {
 const campaignQueries = {
   create: (db, campaign) => {
     const stmt = db.prepare(`
-      INSERT INTO campaigns (name, exchange, raw_url, utm_source, utm_medium, utm_campaign, points_per_referral)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO campaigns (name, exchange, raw_url, utm_source, utm_medium, utm_campaign, points_per_referral, instructions)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
     const result = stmt.run(
       campaign.name,
@@ -259,7 +268,8 @@ const campaignQueries = {
       campaign.utm_source,
       campaign.utm_medium,
       campaign.utm_campaign,
-      campaign.points_per_referral || 10
+      campaign.points_per_referral || 10,
+      campaign.instructions || null
     );
     return result.lastInsertRowid;
   },

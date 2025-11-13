@@ -170,11 +170,24 @@ async function openTask(campaignId) {
     if (!campaign) return;
 
     document.getElementById('task-modal-title').textContent = campaign.name;
+
+    // Build instructions section if available
+    let instructionsHtml = '';
+    if (campaign.instructions) {
+        instructionsHtml = `
+        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ffc107;">
+            <strong>📋 How to Participate:</strong><br>
+            <div style="margin-top: 8px; white-space: pre-wrap;">${escapeHtml(campaign.instructions)}</div>
+        </div>
+        `;
+    }
+
     document.getElementById('task-modal-body').innerHTML = `
         <div style="margin-bottom: 16px;">
             <strong>Exchange:</strong> ${escapeHtml(campaign.exchange)}<br>
             <strong>Reward:</strong> ${campaign.points_per_referral || 10} points per referral
         </div>
+        ${instructionsHtml}
         <div style="background: #f0f0f0; padding: 12px; border-radius: 8px; font-size: 13px;">
             <strong>How to earn:</strong><br>
             1. Click "Get Link" to get your referral link<br>
@@ -418,6 +431,7 @@ async function createCampaign() {
     const exchange = document.getElementById('campaign-exchange').value;
     const raw_url = document.getElementById('campaign-url').value;
     const points_per_referral = parseInt(document.getElementById('campaign-points').value) || 10;
+    const instructions = document.getElementById('campaign-instructions').value;
 
     if (!name || !exchange || !raw_url) {
         tg.showAlert('Please fill in all required fields');
@@ -435,7 +449,8 @@ async function createCampaign() {
                 raw_url,
                 utm_source: 'telegram',
                 utm_medium: 'webapp',
-                points_per_referral
+                points_per_referral,
+                instructions: instructions || null
             })
         });
 
