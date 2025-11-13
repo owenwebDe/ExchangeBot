@@ -15,9 +15,6 @@ COPY src ./src
 COPY public ./public
 COPY .env.example ./.env.example
 
-# Create volume for database
-VOLUME ["/app/data"]
-
 # Expose port
 EXPOSE 3000
 
